@@ -1,65 +1,127 @@
-import Image from "next/image";
+"use client";
+import { useTasks } from "../hooks/useTasks";
+import TaskForm from "../components/TaskForm";
+import TaskList from "../components/TaskList";
+import SearchBar from "../components/SearchBar";
+import FilterBar from "../components/FilterBar";
+import Loader from "../components/Loader";
+import ErrorState from "../components/ErrorState";
+import { 
+  LayoutDashboard, 
+  CheckCircle, 
+  Clock, 
+  Layers,
+  Zap
+} from "lucide-react";
 
 export default function Home() {
+  const {
+    tasks,
+    loading,
+    error,
+    isSubmitting,
+    searchQuery,
+    setSearchQuery,
+    statusFilter,
+    setStatusFilter,
+    addTask,
+    toggleTaskStatus,
+    deleteTask,
+    refresh,
+    stats
+  } = useTasks();
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.js file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+    <div className="min-h-screen bg-[#0a0a0b] text-zinc-100 font-sans selection:bg-indigo-500/30">
+      <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-500/10 blur-[120px] rounded-full" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-500/10 blur-[120px] rounded-full" />
+      </div>
+
+      <div className="relative z-10 max-w-[1400px] mx-auto p-4 md:p-8 grid grid-cols-1 xl:grid-cols-[380px_1fr] gap-8">
+        
+        {/* Sidebar Header & Task Form */}
+        <aside className="space-y-8">
+          <header className="space-y-2">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 bg-indigo-600 rounded-xl shadow-lg shadow-indigo-500/40">
+                <Zap className="w-6 h-6 text-white text-shadow" />
+              </div>
+              <h1 className="text-3xl font-black tracking-tighter text-white uppercase italic">
+                Task<span className="text-indigo-500">Manager</span>
+              </h1>
+            </div>
+          </header>
+
+          <TaskForm onAdd={addTask} isSubmitting={isSubmitting} />
+
+          {/* Productivity Stats */}
+          <section className="bg-zinc-900/40 border border-zinc-800 p-6 rounded-3xl space-y-6 backdrop-blur-md">
+            <h3 className="text-sm font-bold text-zinc-500 uppercase tracking-[0.2em] flex items-center gap-2">
+              <LayoutDashboard className="w-4 h-4" />
+              Diagnostics
+            </h3>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div className="p-4 bg-zinc-950/50 border border-zinc-800 rounded-2xl">
+                <p className="text-xs font-bold text-zinc-500 uppercase mb-1">Total</p>
+                <p className="text-2xl font-black text-white">{stats.total}</p>
+              </div>
+              <div className="p-4 bg-emerald-500/5 border border-emerald-500/20 rounded-2xl">
+                <div className="flex justify-between items-start">
+                  <p className="text-xs font-bold text-emerald-500/70 uppercase mb-1">Resolved</p>
+                  <CheckCircle className="w-3 h-3 text-emerald-500" />
+                </div>
+                <p className="text-2xl font-black text-emerald-400">{stats.completed}</p>
+              </div>
+              <div className="p-4 bg-amber-500/5 border border-amber-500/20 rounded-2xl col-span-2">
+                <div className="flex justify-between items-start">
+                  <p className="text-xs font-bold text-amber-500/70 uppercase mb-1">Active Objectives</p>
+                  <Clock className="w-4 h-4 text-amber-500" />
+                </div>
+                <p className="text-2xl font-black text-amber-400">{stats.pending}</p>
+              </div>
+            </div>
+          </section>
+        </aside>
+
+        {/* Main Task List */}
+        <main className="space-y-8">
+          {/* Search & Filter Controls */}
+          <div className="flex flex-col sm:flex-row gap-4 sticky top-4 z-50 p-2">
+            <SearchBar value={searchQuery} onChange={setSearchQuery} />
+            <FilterBar activeFilter={statusFilter} onFilterChange={setStatusFilter} />
+          </div>
+
+          {/* Task List Area */}
+          <section className="min-h-[600px]">
+            {error ? (
+              <ErrorState message={error} onRetry={refresh} />
+            ) : loading ? (
+              <Loader />
+            ) : (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between px-2">
+                  <h2 className="text-lg font-bold text-zinc-400 flex items-center gap-2">
+                    <Layers className="w-5 h-5" />
+                    Objective Feed
+                  </h2>
+                  <span className="px-3 py-1 bg-zinc-800 rounded-full text-xs font-bold text-zinc-500">
+                    {tasks.length} {tasks.length === 1 ? 'TASK' : 'TASKS'} FOUND
+                  </span>
+                </div>
+                
+                <TaskList 
+                  tasks={tasks} 
+                  onToggle={toggleTaskStatus} 
+                  onDelete={deleteTask} 
+                />
+              </div>
+            )}
+          </section>
+        </main>
+
+      </div>
     </div>
   );
 }

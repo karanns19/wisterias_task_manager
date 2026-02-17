@@ -30,7 +30,6 @@ describe('Task API', () => {
 
   // Test 3: GET /tasks/:id
   it('should fetch a specific task by ID', async () => {
-    // We know ID 1 exists from initial data
     const res = await request(app).get('/tasks/1');
     expect(res.statusCode).toEqual(200);
     expect(res.body.success).toBe(true);
@@ -40,25 +39,21 @@ describe('Task API', () => {
 
   // Test 4: DELETE /tasks/:id
   it('should delete a task', async () => {
-    // First create a task to delete to ensure predictability
     const createRes = await request(app)
       .post('/tasks')
       .send({ title: 'Task to Delete', description: 'Will be removed' });
-    
-    // Check if creation was successful and access data
     const taskId = createRes.body.data.id;
 
     const deleteRes = await request(app).delete(`/tasks/${taskId}`);
     expect(deleteRes.statusCode).toEqual(200);
     expect(deleteRes.body.message).toBe('Task deleted successfully');
 
-    // Verify it's gone
     const getRes = await request(app).get(`/tasks/${taskId}`);
     expect(getRes.statusCode).toEqual(404);
     expect(getRes.body.success).toBe(false);
   });
 
-  // Test 5 (Bonus): Handle non-existent task
+  // Test 5: Handle non-existent task
   it('should return 404 for a task that does not exist', async () => {
     const res = await request(app).get('/tasks/999');
     expect(res.statusCode).toEqual(404);

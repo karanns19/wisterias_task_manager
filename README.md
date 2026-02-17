@@ -1,110 +1,97 @@
-# Task Manager Application
+# Task Manager - Wisterias
 
-A simple full-stack Task Manager built with:
-
-- Frontend: Next.js (React)
-- Backend: Node.js + Express
-- Testing: Jest & Supertest
-
-This application allows users to create, search, filter, update, and delete tasks.
+A Task Management dashboard built with the modern web stack.
 
 ---
 
 ## 🏗 Architecture Overview
 
-This project follows a clean separation of concerns:
+The project is structured with a strict separation of concerns to ensure maintainability and production readiness.
 
-task-manager/
-│
-├── backend/        → Express REST API
-└── frontend/       → Next.js Client Application
+### 🌐 Frontend (Next.js)
+- **`app/`**: Next.js App Router for layouts and primary views.
+- **`components/`**: Atomic UI components (TaskCard, TaskForm, Loader, etc.) built with Tailwind CSS.
+- **`hooks/`**: Custom hooks (e.g., `useTasks`) managing state and business logic orchestration.
+- **`services/`**: Centralized API communication layer using Axios.
+- **`utils/`**: Helper functions for validation and conditional class merging.
 
-
-### Backend Architecture
-
-The backend follows a modular structure:
-
-- routes → Defines API endpoints
-- controllers → Handles request/response logic
-- services → Business logic
-- data → In-memory task storage
-- app.js → Express configuration
-- server.js → Application entry point
-
-### Frontend Architecture
-
-- components → Reusable UI components
-- services → API communication layer
-- app → Main Next.js pages
-
-This structure keeps responsibilities separated and improves maintainability.
+### 🔌 Backend (Node/Express)
+- **Standardized API**: All endpoints return a consistent `{ success: boolean, data: ... }` format.
+- **Controllers**: Logic-focused request handlers with full async error tracking.
+- **Middleware**: Global `errorHandler` and CORS integration.
+- **Services**: Business logic decoupled from transportation layers.
+- **Testing**: Comprehensive API test suite using Jest and Supertest.
 
 ---
 
-## 🚀 Features
+## 🚀 Key Features
 
-- Add a new task
-- View all tasks
-- Delete a task
-- Update task status (completed / pending)
-- Search tasks by title
-- Filter tasks by status
-- Basic error handling
-- API tests included
+- **Premium SaaS UI**: Dark tech aesthetic with glassmorphism, tailored scrollbars, and background glows.
+- **Smart Diagnostics**: Real-time productivity stats (Total, Resolved, Active counts).
+- **Advanced UX**:
+  - Smooth hover animations and staggered list transitions (Framer Motion).
+  - Button loading states ("ADDING...") and disabled modes during submission.
+  - Robust error handling with dedicated UI states (Error/Empty/Loading).
+- **Search & Filtering**: Instant title-based search and status filtering (Overview/Active/Resolved).
+- **Testing Suite**: 7+ standardized API tests covering CRUD and validation.
 
 ---
 
 ## 📦 Tech Stack
 
-Frontend:
-- Next.js
-- React Hooks
-- Fetch API
+### Frontend
+- **Framework**: Next.js 15 (React 19)
+- **Styling**: Tailwind CSS 4
+- **Icons**: Lucide React
+- **Animations**: Framer Motion
+- **API Client**: Axios
 
-Backend:
-- Node.js
-- Express
-- CORS
+### Backend
+- **Runtime**: Node.js
+- **Framework**: Express
+- **Middleware**: CORS, Custom Error Handler
+- **Architecture**: Service-Oriented (SOC)
 
-Testing:
-- Jest
-- Supertest
+### Testing
+- **Framework**: Jest
+- **Integration**: Supertest
 
 ---
 
 ## ⚙️ Setup Instructions
 
-### 1️⃣ Clone the repository
-
+### 1️⃣ Clone and Prepare
 ```bash
 git clone <your-repo-link>
-cd task-manager
+cd "Wisterias Task Manager"
 ```
 
----
-
-### 2️⃣ Run Backend
-
+### 2️⃣ Initialize Backend
 ```bash
 cd backend
 npm install
 npm run dev
 ```
+*Backend runs on: `http://localhost:5000`*
 
-Backend runs on:
-http://localhost:5000
-
----
-
-### 3️⃣ Run Frontend
-
-Open new terminal:
-
+### 3️⃣ Initialize Frontend
 ```bash
+# In a new terminal
 cd frontend
 npm install
 npm run dev
 ```
+*Frontend runs on: `http://localhost:3000`*
 
-Frontend runs on:
-http://localhost:3000
+---
+
+## 🧪 Running Tests
+
+Validate the backend API integrity:
+```bash
+cd backend
+npm test
+```
+*Current Status: 7 Passed, 0 Failed*
+
+---

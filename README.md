@@ -63,7 +63,7 @@ The project is structured with a strict separation of concerns to ensure maintai
 ### 1️⃣ Clone and Prepare
 ```bash
 git clone <your-repo-link>
-cd "Wisterias Task Manager"
+cd "wisterias_task_manager"
 ```
 
 ### 2️⃣ Initialize Backend

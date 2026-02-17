@@ -1,29 +1,36 @@
 const taskService = require("../services/taskService");
 
-const getAllTasks = (req, res) => {
-  const { search, status } = req.query;
+const getAllTasks = (req, res, next) => {
+  try {
+    const { search, status } = req.query;
 
-  let tasks = taskService.getAllTasks();
+    let tasks = taskService.getAllTasks();
 
-  if (search) {
-    tasks = tasks.filter((task) =>
-      task.title.toLowerCase().includes(search.toLowerCase()),
-    );
-  }
-
-  if (status) {
-    if (!["completed", "pending"].includes(status)) {
-      return res.status(400).json({
-        success: false,
-        message: "Status must be 'completed' or 'pending'",
-      });
+    if (search) {
+      tasks = tasks.filter((task) =>
+        task.title.toLowerCase().includes(search.toLowerCase()),
+      );
     }
 
-    const isCompleted = status === "completed";
-    tasks = tasks.filter((task) => task.completed === isCompleted);
-  }
+    if (status) {
+      if (!["completed", "pending"].includes(status)) {
+        return res.status(400).json({
+          success: false,
+          message: "Status must be 'completed' or 'pending'",
+        });
+      }
 
-  res.json(tasks);
+      const isCompleted = status === "completed";
+      tasks = tasks.filter((task) => task.completed === isCompleted);
+    }
+
+    res.json({
+      success: true,
+      data: tasks
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 
 const getTaskById = (req, res, next) => {
@@ -73,21 +80,41 @@ const createTask = (req, res, next) => {
   }
 };
 
-const updateTask = (req, res) => {
-  const updatedTask = taskService.updateTask(req.params.id, req.body);
-  if (updatedTask) {
-    res.json(updatedTask);
-  } else {
-    res.status(404).json({ message: "Task not found" });
+const updateTask = (req, res, next) => {
+  try {
+    const updatedTask = taskService.updateTask(req.params.id, req.body);
+    if (updatedTask) {
+      res.json({
+        success: true,
+        data: updatedTask
+      });
+    } else {
+      res.status(404).json({
+        success: false,
+        message: "Task not found"
+      });
+    }
+  } catch (error) {
+    next(error);
   }
 };
 
-const deleteTask = (req, res) => {
-  const deletedTask = taskService.deleteTask(req.params.id);
-  if (deletedTask) {
-    res.json({ message: "Task deleted successfully" });
-  } else {
-    res.status(404).json({ message: "Task not found" });
+const deleteTask = (req, res, next) => {
+  try {
+    const deletedTask = taskService.deleteTask(req.params.id);
+    if (deletedTask) {
+      res.json({
+        success: true,
+        message: "Task deleted successfully"
+      });
+    } else {
+      res.status(404).json({
+        success: false,
+        message: "Task not found"
+      });
+    }
+  } catch (error) {
+    next(error);
   }
 };
 

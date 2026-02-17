@@ -6,8 +6,9 @@ describe('Task API', () => {
   it('should GET all tasks', async () => {
     const res = await request(app).get('/tasks');
     expect(res.statusCode).toEqual(200);
-    expect(Array.isArray(res.body)).toBe(true);
-    expect(res.body.length).toBeGreaterThanOrEqual(2);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.data.length).toBeGreaterThanOrEqual(2);
   });
 
   // Test 2: POST /tasks
@@ -21,9 +22,10 @@ describe('Task API', () => {
       .send(newTask);
     
     expect(res.statusCode).toEqual(201);
-    expect(res.body).toHaveProperty('id');
-    expect(res.body.title).toBe(newTask.title);
-    expect(res.body.completed).toBe(false);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveProperty('id');
+    expect(res.body.data.title).toBe(newTask.title);
+    expect(res.body.data.completed).toBe(false);
   });
 
   // Test 3: GET /tasks/:id
@@ -31,8 +33,9 @@ describe('Task API', () => {
     // We know ID 1 exists from initial data
     const res = await request(app).get('/tasks/1');
     expect(res.statusCode).toEqual(200);
-    expect(res.body.id).toBe(1);
-    expect(res.body).toHaveProperty('title');
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.id).toBe(1);
+    expect(res.body.data).toHaveProperty('title');
   });
 
   // Test 4: DELETE /tasks/:id
@@ -42,7 +45,8 @@ describe('Task API', () => {
       .post('/tasks')
       .send({ title: 'Task to Delete', description: 'Will be removed' });
     
-    const taskId = createRes.body.id;
+    // Check if creation was successful and access data
+    const taskId = createRes.body.data.id;
 
     const deleteRes = await request(app).delete(`/tasks/${taskId}`);
     expect(deleteRes.statusCode).toEqual(200);
@@ -51,12 +55,35 @@ describe('Task API', () => {
     // Verify it's gone
     const getRes = await request(app).get(`/tasks/${taskId}`);
     expect(getRes.statusCode).toEqual(404);
+    expect(getRes.body.success).toBe(false);
   });
 
   // Test 5 (Bonus): Handle non-existent task
   it('should return 404 for a task that does not exist', async () => {
     const res = await request(app).get('/tasks/999');
     expect(res.statusCode).toEqual(404);
+    expect(res.body.success).toBe(false);
     expect(res.body.message).toBe('Task not found');
+  });
+
+  // Test 6: Validate status query parameter
+  it('should return 400 for invalid status query', async () => {
+    const res = await request(app).get('/tasks?status=invalid');
+    expect(res.statusCode).toEqual(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.message).toContain('Status must be');
+  });
+
+  // Test 7: Update a task
+  it('should update a task', async () => {
+    const updatedData = { title: 'Updated Title', completed: true };
+    const res = await request(app)
+      .put('/tasks/1')
+      .send(updatedData);
+    
+    expect(res.statusCode).toEqual(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.title).toBe('Updated Title');
+    expect(res.body.data.completed).toBe(true);
   });
 });

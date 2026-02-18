@@ -12,7 +12,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Task Manager - Wisterias",
+  title: "Task Manager - KS",
   description: "A task management dashboard for productivity.",
 };
 

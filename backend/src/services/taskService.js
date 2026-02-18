@@ -1,39 +1,39 @@
-let tasks = require('../data/tasks');
+const Task = require('../models/Task');
 
-const getAllTasks = () => {
-  return tasks;
-};
+const getAllTasks = async (query = {}) => {
+  const { search, status } = query;
+  let filter = {};
 
-const getTaskById = (id) => {
-  return tasks.find(task => task.id === parseInt(id));
-};
-
-const createTask = (taskData) => {
-  const newTask = {
-    id: tasks.length > 0 ? Math.max(...tasks.map(t => t.id)) + 1 : 1,
-    ...taskData,
-    completed: false
-  };
-  tasks.push(newTask);
-  return newTask;
-};
-
-const updateTask = (id, taskData) => {
-  const index = tasks.findIndex(task => task.id === parseInt(id));
-  if (index !== -1) {
-    tasks[index] = { ...tasks[index], ...taskData };
-    return tasks[index];
+  if (search) {
+    filter.title = { $regex: search, $options: 'i' };
   }
-  return null;
+
+  if (status) {
+    filter.completed = status === 'completed';
+  }
+
+  return await Task.find(filter).sort({ createdAt: -1 });
 };
 
-const deleteTask = (id) => {
-  const index = tasks.findIndex(task => task.id === parseInt(id));
-  if (index !== -1) {
-    const deletedTask = tasks.splice(index, 1);
-    return deletedTask[0];
-  }
-  return null;
+const getTaskById = async (id) => {
+  return await Task.findById(id);
+};
+
+const createTask = async (taskData) => {
+  const task = new Task(taskData);
+  return await task.save();
+};
+
+const updateTask = async (id, taskData) => {
+  return await Task.findByIdAndUpdate(
+    id,
+    { $set: taskData },
+    { new: true, runValidators: true }
+  );
+};
+
+const deleteTask = async (id) => {
+  return await Task.findByIdAndDelete(id);
 };
 
 module.exports = {
@@ -43,3 +43,4 @@ module.exports = {
   updateTask,
   deleteTask
 };
+

@@ -1,28 +1,17 @@
 const taskService = require("../services/taskService");
 
-const getAllTasks = (req, res, next) => {
+const getAllTasks = async (req, res, next) => {
   try {
     const { search, status } = req.query;
 
-    let tasks = taskService.getAllTasks();
-
-    if (search) {
-      tasks = tasks.filter((task) =>
-        task.title.toLowerCase().includes(search.toLowerCase()),
-      );
+    if (status && !["completed", "pending"].includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: "Status must be 'completed' or 'pending'",
+      });
     }
 
-    if (status) {
-      if (!["completed", "pending"].includes(status)) {
-        return res.status(400).json({
-          success: false,
-          message: "Status must be 'completed' or 'pending'",
-        });
-      }
-
-      const isCompleted = status === "completed";
-      tasks = tasks.filter((task) => task.completed === isCompleted);
-    }
+    const tasks = await taskService.getAllTasks({ search, status });
 
     res.json({
       success: true,
@@ -33,9 +22,9 @@ const getAllTasks = (req, res, next) => {
   }
 };
 
-const getTaskById = (req, res, next) => {
+const getTaskById = async (req, res, next) => {
   try {
-    const task = taskService.getTaskById(req.params.id);
+    const task = await taskService.getTaskById(req.params.id);
 
     if (!task) {
       return res.status(404).json({
@@ -55,7 +44,7 @@ const getTaskById = (req, res, next) => {
 };
 
 
-const createTask = (req, res, next) => {
+const createTask = async (req, res, next) => {
   try {
     const { title, description } = req.body;
 
@@ -66,7 +55,7 @@ const createTask = (req, res, next) => {
       });
     }
 
-    const newTask = taskService.createTask({
+    const newTask = await taskService.createTask({
       title: title.trim(),
       description: description || "",
     });
@@ -80,9 +69,9 @@ const createTask = (req, res, next) => {
   }
 };
 
-const updateTask = (req, res, next) => {
+const updateTask = async (req, res, next) => {
   try {
-    const updatedTask = taskService.updateTask(req.params.id, req.body);
+    const updatedTask = await taskService.updateTask(req.params.id, req.body);
     if (updatedTask) {
       res.json({
         success: true,
@@ -99,9 +88,9 @@ const updateTask = (req, res, next) => {
   }
 };
 
-const deleteTask = (req, res, next) => {
+const deleteTask = async (req, res, next) => {
   try {
-    const deletedTask = taskService.deleteTask(req.params.id);
+    const deletedTask = await taskService.deleteTask(req.params.id);
     if (deletedTask) {
       res.json({
         success: true,
@@ -125,3 +114,4 @@ module.exports = {
   updateTask,
   deleteTask,
 };
+

@@ -12,8 +12,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Wisterias | Advanced Task Management",
-  description: "Experience the next generation of productivity with Wisterias Task Manager.",
+  title: "Task Manager - KS",
+  description: "A task management dashboard for productivity.",
 };
 
 export default function RootLayout({ children }) {

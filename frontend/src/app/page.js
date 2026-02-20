@@ -7,14 +7,12 @@ import FilterBar from "../components/FilterBar";
 import Loader from "../components/Loader";
 import ErrorState from "../components/ErrorState";
 import { 
-  Terminal, 
-  CheckCircle2, 
+  LayoutDashboard, 
+  CheckCircle, 
   Clock, 
-  ListTodo,
-  TrendingUp,
-  Cpu
+  Layers,
+  Zap
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 
 export default function Home() {
   const {
@@ -34,127 +32,96 @@ export default function Home() {
   } = useTasks();
 
   return (
-    <div className="min-h-screen selection:bg-accent/30 lowercase">
-      <div className="mesh-bg" />
-      
-      <div className="relative z-10 max-w-[1400px] mx-auto px-6 py-12 md:px-12 lg:py-20">
+    <div className="min-h-screen bg-[#0a0a0b] text-zinc-100 font-sans selection:bg-indigo-500/30">
+      <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-500/10 blur-[120px] rounded-full" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-500/10 blur-[120px] rounded-full" />
+      </div>
+
+      <div className="relative z-10 max-w-[1400px] mx-auto p-4 md:p-8 grid grid-cols-1 xl:grid-cols-[380px_1fr] gap-8">
         
-        {/* Header Section */}
-        <header className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16 animate-slide-up">
-          <div className="space-y-4">
+        {/* Sidebar Header & Task Form */}
+        <aside className="space-y-8">
+          <header className="space-y-2">
             <div className="flex items-center gap-3">
-              <div className="p-3 bg-accent/10 rounded-2xl border border-accent/20">
-                <Cpu className="w-8 h-8 text-accent" />
+              <div className="p-2.5 bg-indigo-600 rounded-xl shadow-lg shadow-indigo-500/40">
+                <Zap className="w-6 h-6 text-white text-shadow" />
               </div>
-              <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-foreground">
-                Task<span className="text-accent">Manager_</span>
+              <h1 className="text-3xl font-black tracking-tighter text-white uppercase italic">
+                Task<span className="text-indigo-500">Manager</span>
               </h1>
             </div>
-            <p className="text-muted text-lg max-w-md font-medium leading-relaxed">
-              Streamline your workflow with our advanced objective management system.
-            </p>
-          </div>
+          </header>
 
-          {/* Productivity Stats Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 min-w-[300px]">
-            <StatCard 
-              label="Total" 
-              value={stats.total} 
-              icon={<ListTodo className="w-4 h-4" />}
-              color="text-accent"
-            />
-            <StatCard 
-              label="Completed" 
-              value={stats.completed} 
-              icon={<CheckCircle2 className="w-4 h-4" />}
-              color="text-success"
-            />
-            <StatCard 
-              label="Active" 
-              value={stats.pending} 
-              icon={<Clock className="w-4 h-4" />}
-              color="text-pending"
-              className="col-span-2 sm:col-span-1"
-            />
-          </div>
-        </header>
+          <TaskForm onAdd={addTask} isSubmitting={isSubmitting} />
 
-        {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-          
-          {/* Left Column: Task Creation */}
-          <aside className="lg:col-span-4 space-y-8 animate-slide-up" style={{ animationDelay: '0.1s' }}>
-            <TaskForm onAdd={addTask} isSubmitting={isSubmitting} />
+          {/* Productivity Stats */}
+          <section className="bg-zinc-900/40 border border-zinc-800 p-6 rounded-3xl space-y-6 backdrop-blur-md">
+            <h3 className="text-sm font-bold text-zinc-500 uppercase tracking-[0.2em] flex items-center gap-2">
+              <LayoutDashboard className="w-4 h-4" />
+              Diagnostics
+            </h3>
             
-            <div className="p-8 rounded-3xl bg-accent/5 border border-accent/10 space-y-4">
-              <div className="flex items-center gap-2 text-accent font-semibold text-sm uppercase tracking-widest">
-                <TrendingUp className="w-4 h-4" />
-                Performance Insights
+            <div className="grid grid-cols-2 gap-4">
+              <div className="p-4 bg-zinc-950/50 border border-zinc-800 rounded-2xl">
+                <p className="text-xs font-bold text-zinc-500 uppercase mb-1">Total</p>
+                <p className="text-2xl font-black text-white">{stats.total}</p>
               </div>
-              <p className="text-muted text-sm leading-relaxed">
-                You&apos;ve completed {Math.round((stats.completed / (stats.total || 1)) * 100)}% of your tasks. Keep up the momentum to reach your daily milestones.
-              </p>
-            </div>
-          </aside>
-
-          {/* Right Column: Task Management */}
-          <main className="lg:col-span-8 space-y-8">
-            {/* Search & Filter Controls */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 animate-slide-up" style={{ animationDelay: '0.2s' }}>
-              <SearchBar value={searchQuery} onChange={setSearchQuery} />
-              <FilterBar activeFilter={statusFilter} onFilterChange={setStatusFilter} />
-            </div>
-
-            {/* Task List Area */}
-            <section className="min-h-[600px] animate-slide-up" style={{ animationDelay: '0.3s' }}>
-              {error ? (
-                <ErrorState message={error} onRetry={refresh} />
-              ) : loading ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {[...Array(6)].map((_, i) => (
-                    <div key={i} className="h-48 rounded-3xl bg-card/20 animate-pulse border border-card-border/50" />
-                  ))}
+              <div className="p-4 bg-emerald-500/5 border border-emerald-500/20 rounded-2xl">
+                <div className="flex justify-between items-start">
+                  <p className="text-xs font-bold text-emerald-500/70 uppercase mb-1">Resolved</p>
+                  <CheckCircle className="w-3 h-3 text-emerald-500" />
                 </div>
-              ) : (
-                <div className="space-y-8">
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-xl font-semibold text-foreground flex items-center gap-3">
-                      <Terminal className="w-5 h-5 text-accent" />
-                      Live Feed
-                    </h2>
-                    <div className="h-px flex-1 mx-6 bg-gradient-to-r from-card-border/50 to-transparent" />
-                    <span className="text-xs font-bold text-muted uppercase tracking-widest bg-card/40 border border-card-border px-3 py-1 rounded-full">
-                      {tasks.length} items
-                    </span>
-                  </div>
-                  
-                  <TaskList 
-                    tasks={tasks} 
-                    onToggle={toggleTaskStatus} 
-                    onDelete={deleteTask} 
-                  />
+                <p className="text-2xl font-black text-emerald-400">{stats.completed}</p>
+              </div>
+              <div className="p-4 bg-amber-500/5 border border-amber-500/20 rounded-2xl col-span-2">
+                <div className="flex justify-between items-start">
+                  <p className="text-xs font-bold text-amber-500/70 uppercase mb-1">Active Objectives</p>
+                  <Clock className="w-4 h-4 text-amber-500" />
                 </div>
-              )}
-            </section>
-          </main>
-        </div>
-      </div>
-    </div>
-  );
-}
+                <p className="text-2xl font-black text-amber-400">{stats.pending}</p>
+              </div>
+            </div>
+          </section>
+        </aside>
 
-function StatCard({ label, value, icon, color, className }) {
-  return (
-    <div className={`p-5 rounded-3xl bg-card/40 backdrop-blur-md border border-card-border flex flex-col gap-2 group hover:border-accent/30 transition-all duration-300 ${className}`}>
-      <div className={`flex items-center justify-between ${color}`}>
-        <span className="text-xs font-bold uppercase tracking-widest opacity-70 group-hover:opacity-100 transition-opacity">
-          {label}
-        </span>
-        {icon}
+        {/* Main Task List */}
+        <main className="space-y-8">
+          {/* Search & Filter Controls */}
+          <div className="flex flex-col sm:flex-row gap-4 sticky top-4 z-50 p-2">
+            <SearchBar value={searchQuery} onChange={setSearchQuery} />
+            <FilterBar activeFilter={statusFilter} onFilterChange={setStatusFilter} />
+          </div>
+
+          {/* Task List Area */}
+          <section className="min-h-[600px]">
+            {error ? (
+              <ErrorState message={error} onRetry={refresh} />
+            ) : loading ? (
+              <Loader />
+            ) : (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between px-2">
+                  <h2 className="text-lg font-bold text-zinc-400 flex items-center gap-2">
+                    <Layers className="w-5 h-5" />
+                    Objective Feed
+                  </h2>
+                  <span className="px-3 py-1 bg-zinc-800 rounded-full text-xs font-bold text-zinc-500">
+                    {tasks.length} {tasks.length === 1 ? 'TASK' : 'TASKS'} FOUND
+                  </span>
+                </div>
+                
+                <TaskList 
+                  tasks={tasks} 
+                  onToggle={toggleTaskStatus} 
+                  onDelete={deleteTask} 
+                />
+              </div>
+            )}
+          </section>
+        </main>
+
       </div>
-      <p className="text-3xl font-bold text-foreground tracking-tight">
-        {value}
-      </p>
     </div>
   );
 }

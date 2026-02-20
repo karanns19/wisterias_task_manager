@@ -1,15 +1,14 @@
 "use client";
-import { Loader2 } from "lucide-react";
 
 export default function Loader() {
   return (
-    <div className="flex flex-col items-center justify-center p-20 space-y-4">
-      <div className="relative flex items-center justify-center">
-        <div className="absolute inset-0 bg-accent/20 blur-xl rounded-full animate-pulse" />
-        <Loader2 className="w-10 h-10 text-accent animate-spin relative z-10" />
+    <div className="flex flex-col items-center justify-center p-12">
+      <div className="relative">
+        <div className="h-16 w-16 rounded-full border-t-2 border-b-2 border-indigo-500 animate-spin"></div>
+        <div className="absolute top-0 left-0 h-16 w-16 rounded-full border-r-2 border-l-2 border-purple-500 animate-spin opacity-50" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
       </div>
-      <p className="text-muted text-xs font-bold uppercase tracking-[0.3em] animate-pulse">
-        Synchronizing_
+      <p className="mt-4 text-zinc-400 text-sm font-medium animate-pulse tracking-wide">
+        LOADING TASKS...
       </p>
     </div>
   );

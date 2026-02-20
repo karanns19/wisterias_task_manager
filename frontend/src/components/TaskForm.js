@@ -1,95 +1,80 @@
 "use client";
 import { useState } from "react";
-import { Plus, Loader2, Sparkles } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { Plus, Loader2 } from "lucide-react";
+import { validateTask } from "../utils/validation";
+import { cn } from "../utils/cn";
 
 export default function TaskForm({ onAdd, isSubmitting }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!title.trim() || isSubmitting) return;
+    const validationError = validateTask(title);
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
 
-    const success = await onAdd({ title, description });
-    if (success) {
+    const res = await onAdd({ title, description });
+    if (res.success) {
       setTitle("");
       setDescription("");
-      setIsExpanded(false);
+      setError(null);
+    } else {
+      setError(res.error);
     }
   };
 
   return (
-    <motion.div 
-      layout
-      className="bg-card/40 backdrop-blur-md border border-card-border rounded-3xl p-6 shadow-2xl relative overflow-hidden group"
-    >
-      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-accent/0 via-accent/50 to-accent/0" />
+    <div className="w-full bg-zinc-900/60 backdrop-blur-xl border border-zinc-800 p-6 rounded-3xl shadow-2xl">
+      <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+        <Plus className="w-6 h-6 text-indigo-500" />
+        New Task
+      </h2>
       
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="p-2 bg-accent/10 rounded-xl">
-            <Sparkles className="w-5 h-5 text-accent" />
-          </div>
-          <h3 className="text-lg font-semibold text-foreground tracking-tight">Create Objective</h3>
-        </div>
-
-        <div className="space-y-3">
+        <div className="space-y-1.5">
           <input
             type="text"
             placeholder="What needs to be done?"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            onFocus={() => setIsExpanded(true)}
-            className="w-full bg-background/50 border border-card-border focus:border-accent/50 focus:ring-1 focus:ring-accent/50 rounded-2xl px-5 py-3 text-foreground placeholder:text-muted/50 outline-none transition-all duration-300"
-            required
+            disabled={isSubmitting}
+            className={cn(
+              "w-full bg-zinc-950/50 border border-zinc-700/50 rounded-xl px-4 py-3 text-white transition-all placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500/40",
+              error && "border-red-500/50 focus:ring-red-500/20"
+            )}
           />
-
-          <AnimatePresence>
-            {isExpanded && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                className="overflow-hidden"
-              >
-                <textarea
-                  placeholder="Add details (optional)..."
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className="w-full bg-background/50 border border-card-border focus:border-accent/50 focus:ring-1 focus:ring-accent/50 rounded-2xl px-5 py-3 text-foreground placeholder:text-muted/50 outline-none transition-all duration-300 min-h-[100px] resize-none"
-                />
-              </motion.div>
-            )}
-          </AnimatePresence>
+          {error && <p className="text-xs font-medium text-red-500 ml-1">{error}</p>}
         </div>
 
-        <div className="flex items-center justify-between pt-2">
-          {isExpanded && (
-             <button
-              type="button"
-              onClick={() => setIsExpanded(false)}
-              className="text-xs font-medium text-muted hover:text-foreground transition-colors"
-            >
-              Cancel
-            </button>
-          )}
-          <div className="flex-1" />
-          <button
-            type="submit"
-            disabled={!title.trim() || isSubmitting}
-            className="flex items-center gap-2 bg-accent hover:bg-accent/90 disabled:opacity-50 disabled:cursor-not-allowed text-accent-foreground px-6 py-2.5 rounded-xl font-semibold text-sm transition-all duration-300 shadow-lg shadow-accent/20 active:scale-95"
-          >
+        <textarea
+          placeholder="Detailed description (optional)..."
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          disabled={isSubmitting}
+          rows={3}
+          className="w-full bg-zinc-950/50 border border-zinc-700/50 rounded-xl px-4 py-3 text-white transition-all placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500/40 resize-none"
+        />
+
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="w-full relative overflow-hidden group py-3.5 bg-indigo-600 hover:bg-indigo-500 disabled:bg-zinc-800 disabled:text-zinc-500 text-white font-bold rounded-xl transition-all active:scale-[0.98] shadow-lg shadow-indigo-500/20"
+        >
+          <div className="flex items-center justify-center gap-2">
             {isSubmitting ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <Loader2 className="w-5 h-5 animate-spin" />
             ) : (
-              <Plus className="w-4 h-4" />
+              <Plus className="w-5 h-5" />
             )}
-            Create Task
-          </button>
-        </div>
+            {isSubmitting ? "ADDING..." : "ADD TASK"}
+          </div>
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+        </button>
       </form>
-    </motion.div>
+    </div>
   );
 }
